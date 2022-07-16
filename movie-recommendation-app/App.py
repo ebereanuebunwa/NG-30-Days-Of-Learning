@@ -1,11 +1,14 @@
+import json
+from urllib.request import urlopen
+
+import PIL.Image
+import io
+import requests
 import streamlit as st
 from PIL import Image
-import json
-from Classifier import KNearestNeighbours
 from bs4 import BeautifulSoup
-import requests, io
-import PIL.Image
-from urllib.request import urlopen
+
+from Classifier import KNearestNeighbours
 
 with open('./data/movie_data.json', 'r+', encoding='utf-8') as f:
     data = json.load(f)  # Load the data from the json file
@@ -13,8 +16,9 @@ with open('./data/movie_titles.json', 'r+', encoding='utf-8') as f:
     movie_titles = json.load(f)
 
 
+# Webscraping to get the movie poster
 def movie_poster_fetcher(imdb_link):
-    ## Display Movie Poster
+    # Display Movie Poster
     url_data = requests.get(imdb_link).text
     s_data = BeautifulSoup(url_data, 'html.parser')
     imdb_dp = s_data.find("meta", property="og:image")
@@ -26,6 +30,7 @@ def movie_poster_fetcher(imdb_link):
     st.image(image, use_column_width=False)
 
 
+# Webscraping to get movie description and ratings.
 def get_movie_info(imdb_link):
     url_data = requests.get(imdb_link).text
     s_data = BeautifulSoup(url_data, 'html.parser')
@@ -35,8 +40,8 @@ def get_movie_info(imdb_link):
     movie_director = movie_descr[0]
     movie_cast = str(movie_descr[1]).replace('With', 'Cast: ').strip()
     movie_story = 'Story: ' + str(movie_descr[2]).strip() + '.'
-    rating = s_data.find("div", class_="AggregateRatingButton__TotalRatingAmount-sc-1ll29m0-3 jkCVKJ")
-    rating = str(rating).split('<div class="AggregateRatingButton__TotalRatingAmount-sc-1ll29m0-3 jkCVKJ')
+    rating = s_data.find("div", class_="AggregateRatingButton__TotalRatingAmount-sc-7ab21ed2-2 kYEdvH")
+    rating = str(rating).split('<div class="AggregateRatingButton__TotalRatingAmount-sc-7ab21ed2-2 kYEdvH')
     rating = str(rating[1]).split("</div>")
     rating = str(rating[0]).replace(''' "> ''', '').replace('">', '')
 
@@ -67,7 +72,7 @@ st.set_page_config(
 
 def run():
     img1 = Image.open('./meta/logo.png')
-    img1 = img1.resize((250, 500), )
+    # img1 = img1.resize((500, 500), )
     st.image(img1, use_column_width=False)
     st.title("Movie Recommender System")
     st.markdown('''<h4 style='text-align: left; color: #d73b5c;'>* Data is based "IMDB 5000 Movie Dataset"</h4>''',
